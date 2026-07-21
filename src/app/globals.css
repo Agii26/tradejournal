@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Class-based dark mode toggle (not just OS preference) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Ink & Alabaster — locked design tokens (WCAG AA verified, see Roadmap.md) */
+:root {
+  --color-canvas: #FAF9F6;
+  --color-surface: #FFFFFF;
+  --color-ink: #17181A;
+  --color-muted: #6B6862;
+  --color-accent: #1F4D3D;
+  --color-accent-tint: #E7EFEB;
+  --color-hairline: #E7E4DD;
+}
+
+.dark {
+  --color-canvas: #131412;
+  --color-surface: #1C1D1A;
+  --color-ink: #F3F1EA;
+  --color-muted: #9A968B;
+  --color-accent: #4FAE8B;
+  --color-accent-tint: #1D2D27;
+  --color-hairline: #2C2D29;
+}
+
+@theme inline {
+  --color-canvas: var(--color-canvas);
+  --color-surface: var(--color-surface);
+  --color-ink: var(--color-ink);
+  --color-muted: var(--color-muted);
+  --color-accent: var(--color-accent);
+  --color-accent-tint: var(--color-accent-tint);
+  --color-hairline: var(--color-hairline);
+
+  --font-display: var(--font-instrument-serif);
+  --font-sans: var(--font-manrope);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans), ui-sans-serif, sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display), serif;
+  }
+}
