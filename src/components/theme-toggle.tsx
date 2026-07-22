@@ -1,24 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 
-export function ThemeToggle() {
-  const [isDark, setIsDark] = useState(() =>
-    typeof document !== "undefined"
-      ? document.documentElement.classList.contains("dark")
-      : false
-  );
+// Tiny external store over the `dark` class on <html>. useSyncExternalStore's
+// getServerSnapshot keeps hydration consistent (server always says "false"),
+// then React re-syncs to the real getSnapshot() value right after hydration
+// completes — a normal update, not a hydration-mismatch error. The pre-
+// hydration script in layout.tsx may have already flipped the class by then,
+// so this corrects the icon without ever mismatching what the server sent.
+const listeners = new Set<() => void>();
 
-  function toggle() {
-    const next = !isDark;
-    setIsDark(next);
-    document.documentElement.classList.toggle("dark", next);
-  }
+function subscribe(callback: () => void) {
+  listeners.add(callback);
+  return () => listeners.delete(callback);
+}
+
+function getSnapshot() {
+  return document.documentElement.classList.contains("dark");
+}
+
+function getServerSnapshot() {
+  return false;
+}
+
+function setDark(next: boolean) {
+  document.documentElement.classList.toggle("dark", next);
+  listeners.forEach((notify) => notify());
+}
+
+export function ThemeToggle() {
+  const isDark = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   return (
     <button
-      onClick={toggle}
+      onClick={() => setDark(!isDark)}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-hairline text-ink transition-colors hover:bg-accent-tint cursor-pointer"
     >

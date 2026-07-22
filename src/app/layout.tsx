@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Instrument_Serif, Manrope } from "next/font/google";
 import "./globals.css";
 
@@ -31,14 +32,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <script
-          // Runs before hydration so the first paint already matches system
-          // preference — ThemeToggle then just reads the class back off the DOM.
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{if(window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.add('dark')}}catch(e){}",
-          }}
-        />
+        <Script id="theme-init" strategy="beforeInteractive">
+          {`try{if(window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.classList.add('dark')}}catch(e){}`}
+        </Script>
       </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
