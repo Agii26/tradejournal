@@ -12,6 +12,7 @@
   --color-accent: #1F4D3D;
   --color-accent-tint: #E7EFEB;
   --color-hairline: #E7E4DD;
+  --color-error: #B3261E;
 }
 
 .dark {
@@ -22,6 +23,7 @@
   --color-accent: #4FAE8B;
   --color-accent-tint: #1D2D27;
   --color-hairline: #2C2D29;
+  --color-error: #E5645C;
 }
 
 @theme inline {
@@ -32,6 +34,7 @@
   --color-accent: var(--color-accent);
   --color-accent-tint: var(--color-accent-tint);
   --color-hairline: var(--color-hairline);
+  --color-error: var(--color-error);
 
   --font-display: var(--font-instrument-serif);
   --font-sans: var(--font-manrope);

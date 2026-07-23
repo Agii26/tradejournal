@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const sampleTrades = [
@@ -24,14 +27,22 @@ const sampleTrades = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const session = await auth();
+  if (session?.user) redirect("/journal");
+
   return (
     <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-6 py-10 sm:py-16">
       <header className="mb-14 flex items-center justify-between">
         <span className="font-display text-2xl tracking-tight text-ink">
           TradeJournal
         </span>
-        <ThemeToggle />
+        <div className="flex items-center gap-4">
+          <Link href="/login" className="text-sm text-muted hover:text-ink">
+            Sign in
+          </Link>
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="flex-1">
@@ -44,6 +55,12 @@ export default function Home() {
           Screenshots, chart patterns, SMC tagging, and the psychology behind
           every trade — logged in under two minutes.
         </p>
+        <Link
+          href="/signup"
+          className="mt-6 inline-flex items-center rounded-md bg-accent px-4 py-2.5 text-sm font-medium text-canvas hover:opacity-90"
+        >
+          Get started
+        </Link>
 
         <section className="mt-12 space-y-3" aria-label="Recent trades preview">
           {sampleTrades.map((t) => (
@@ -77,7 +94,7 @@ export default function Home() {
       </main>
 
       <footer className="mt-16 text-xs text-muted">
-        Phase 1 — foundation in progress.
+        Phase 2 — trade logging live.
       </footer>
     </div>
   );
