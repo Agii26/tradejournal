@@ -76,6 +76,22 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
         {stat("Setup grade", trade.setupGrade)}
       </div>
 
+      {trade.tags.length > 0 && (
+        <div className="mb-8">
+          <h2 className="mb-3 text-sm font-medium text-ink">Tags</h2>
+          <div className="flex flex-wrap gap-1.5">
+            {trade.tags.map((tag) => (
+              <span
+                key={tag.id}
+                className="rounded-full border border-hairline px-2.5 py-1 text-xs text-muted"
+              >
+                {tag.name}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       <h2 className="mb-3 text-sm font-medium text-ink">Screenshots</h2>
       <ImageUpload tradeId={trade.id} images={trade.images} />
     </div>

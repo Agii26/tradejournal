@@ -29,6 +29,18 @@ function parseTradeForm(formData: FormData) {
   });
 }
 
+/** Drops any tag ID that isn't actually this user's — defense against a tampered request. */
+async function verifiedTagIds(formData: FormData, userId: string): Promise<string[]> {
+  const submitted = formData.getAll("tagIds").map(String).filter(Boolean);
+  if (submitted.length === 0) return [];
+  const owned = await prisma.tag.findMany({
+    where: { id: { in: submitted }, userId },
+    select: { id: true },
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cascades from no generated Prisma client in this sandbox
+  return owned.map((t: any) => t.id);
+}
+
 export async function createTrade(
   _prevState: ActionState,
   formData: FormData
@@ -47,9 +59,15 @@ export async function createTrade(
   if (!account) return { error: "That account isn't yours" };
 
   const metrics = computeTradeMetrics(parsed.data);
+  const tagIds = await verifiedTagIds(formData, userId);
 
   const trade = await prisma.trade.create({
-    data: { ...parsed.data, userId, ...metrics },
+    data: {
+      ...parsed.data,
+      userId,
+      ...metrics,
+      tags: { create: tagIds.map((tagId) => ({ tagId })) },
+    },
   });
 
   revalidatePath("/journal");
@@ -81,11 +99,18 @@ export async function updateTrade(
   if (!account) return { error: "That account isn't yours" };
 
   const metrics = computeTradeMetrics(parsed.data);
+  const tagIds = await verifiedTagIds(formData, userId);
 
-  await prisma.trade.update({
-    where: { id: tradeId },
-    data: { ...parsed.data, ...metrics },
-  });
+  await prisma.$transaction([
+    prisma.trade.update({
+      where: { id: tradeId },
+      data: { ...parsed.data, ...metrics },
+    }),
+    prisma.tradeTag.deleteMany({ where: { tradeId } }),
+    prisma.tradeTag.createMany({
+      data: tagIds.map((tagId) => ({ tradeId, tagId })),
+    }),
+  ]);
 
   revalidatePath("/journal");
   revalidatePath(`/journal/${tradeId}`);
@@ -140,14 +165,16 @@ export interface PlainTradeDetail {
   setupGrade: string | null;
   tradingAccount: { id: string; name: string; type: string };
   images: { id: string; url: string; kind: string | null }[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- tag UI lands in Phase 3
-  tags: any[];
+  tags: { id: string; name: string; category: string }[];
 }
 
-export async function getTrades(): Promise<PlainTradeListItem[]> {
+export async function getTrades(filterTagId?: string): Promise<PlainTradeListItem[]> {
   const userId = await requireUserId();
   const trades = await prisma.trade.findMany({
-    where: { userId },
+    where: {
+      userId,
+      ...(filterTagId ? { tags: { some: { tagId: filterTagId } } } : {}),
+    },
     orderBy: { entryAt: "desc" },
     include: { tradingAccount: { select: { name: true } }, images: { take: 1 } },
   });
@@ -166,7 +193,9 @@ export async function getTrade(tradeId: string): Promise<PlainTradeDetail | null
     },
   });
   if (!trade) return null;
-  return toPlainTrade(trade) as PlainTradeDetail;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cascades from no generated Prisma client in this sandbox
+  const flatTags = trade.tags.map((tt: any) => tt.tag);
+  return toPlainTrade({ ...trade, tags: flatTags }) as PlainTradeDetail;
 }
 
 /**

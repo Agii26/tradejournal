@@ -5,12 +5,28 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/require-user";
 import { tradingAccountSchema } from "@/lib/validation";
 
-export async function getTradingAccounts() {
+export interface PlainTradingAccount {
+  id: string;
+  name: string;
+  broker: string | null;
+  type: string;
+  startingBalance: number;
+}
+
+export async function getTradingAccounts(): Promise<PlainTradingAccount[]> {
   const userId = await requireUserId();
-  return prisma.tradingAccount.findMany({
+  const accounts = await prisma.tradingAccount.findMany({
     where: { userId },
     orderBy: { createdAt: "asc" },
   });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cascades from no generated Prisma client in this sandbox
+  return accounts.map((a: any) => ({
+    id: a.id,
+    name: a.name,
+    broker: a.broker,
+    type: a.type,
+    startingBalance: Number(a.startingBalance),
+  }));
 }
 
 export type ActionState = { error?: string } | undefined;

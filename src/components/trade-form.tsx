@@ -3,8 +3,10 @@
 import { useActionState, useMemo, useState } from "react";
 import { FormField, inputClass } from "@/components/form-field";
 import { SubmitButton } from "@/components/submit-button";
+import { TagPicker } from "@/components/tag-picker";
 import { computeTradeMetrics, type Direction } from "@/lib/trade-metrics";
 import { assetClasses } from "@/lib/validation";
+import type { TagGroup } from "@/lib/actions/tags";
 
 type ActionState = { error?: string } | undefined;
 type TradingAccount = { id: string; name: string; type: string };
@@ -20,11 +22,14 @@ const toLocalInputValue = (d?: Date | string | null) => {
 
 export function TradeForm({
   tradingAccounts,
+  tagGroups,
   action,
   defaultValues,
+  defaultSelectedTagIds,
   submitLabel = "Log trade",
 }: {
   tradingAccounts: TradingAccount[];
+  tagGroups: TagGroup[];
   action: (state: ActionState, formData: FormData) => Promise<ActionState>;
   defaultValues?: {
     tradingAccountId?: string;
@@ -43,6 +48,7 @@ export function TradeForm({
     fees?: number | null;
     setupGrade?: string | null;
   };
+  defaultSelectedTagIds?: string[];
   submitLabel?: string;
 }) {
   const [state, formAction] = useActionState(action, undefined);
@@ -272,6 +278,13 @@ export function TradeForm({
           <option value="C">C</option>
         </select>
       </FormField>
+
+      <div>
+        <span className="mb-1.5 block text-[13px] font-medium text-ink">
+          What did you see?
+        </span>
+        <TagPicker tagGroups={tagGroups} defaultSelectedIds={defaultSelectedTagIds} />
+      </div>
 
       {preview && (
         <div className="rounded-lg border border-hairline bg-accent-tint px-5 py-4">

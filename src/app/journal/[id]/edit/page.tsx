@@ -1,11 +1,16 @@
 import { notFound } from "next/navigation";
 import { getTrade, updateTrade } from "@/lib/actions/trades";
 import { getTradingAccounts } from "@/lib/actions/accounts";
+import { getTagGroups } from "@/lib/actions/tags";
 import { TradeForm } from "@/components/trade-form";
 
 export default async function EditTradePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [trade, accounts] = await Promise.all([getTrade(id), getTradingAccounts()]);
+  const [trade, accounts, tagGroups] = await Promise.all([
+    getTrade(id),
+    getTradingAccounts(),
+    getTagGroups(),
+  ]);
   if (!trade) notFound();
 
   const boundUpdate = updateTrade.bind(null, trade.id);
@@ -15,8 +20,10 @@ export default async function EditTradePage({ params }: { params: Promise<{ id: 
       <h1 className="mb-8 font-display text-3xl text-ink">Edit trade</h1>
       <TradeForm
         tradingAccounts={accounts}
+        tagGroups={tagGroups}
         action={boundUpdate}
         submitLabel="Save changes"
+        defaultSelectedTagIds={trade.tags.map((t) => t.id)}
         defaultValues={{
           tradingAccountId: trade.tradingAccount.id,
           symbol: trade.symbol,

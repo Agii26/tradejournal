@@ -1,17 +1,27 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { getTrades } from "@/lib/actions/trades";
+import { getTagGroups } from "@/lib/actions/tags";
+import { TagFilterSelect } from "@/components/tag-filter-select";
 
 function formatDate(d: string | Date) {
   return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-export default async function JournalPage() {
-  const trades = await getTrades();
+export default async function JournalPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tag?: string }>;
+}) {
+  const { tag } = await searchParams;
+  const [trades, tagGroups] = await Promise.all([getTrades(tag), getTagGroups()]);
+  const activeTag = tag
+    ? tagGroups.flatMap((g) => g.tags).find((t) => t.id === tag)
+    : undefined;
 
   return (
     <div>
-      <div className="mb-8 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-3xl text-ink">Journal</h1>
         <Link
           href="/journal/new"
@@ -21,18 +31,34 @@ export default async function JournalPage() {
         </Link>
       </div>
 
+      <div className="mb-8 flex items-center gap-3">
+        <TagFilterSelect tagGroups={tagGroups} currentTagId={tag} />
+        {activeTag && (
+          <Link
+            href="/journal"
+            className="inline-flex items-center gap-1 text-xs text-muted hover:text-ink"
+          >
+            <X size={12} /> Clear &ldquo;{activeTag.name}&rdquo;
+          </Link>
+        )}
+      </div>
+
       {trades.length === 0 ? (
         <div className="rounded-lg border border-dashed border-hairline px-6 py-16 text-center">
-          <p className="text-ink">No trades logged yet.</p>
+          <p className="text-ink">{tag ? "No trades with that tag." : "No trades logged yet."}</p>
           <p className="mt-1 text-sm text-muted">
-            Every setup, every mistake — start with your next one.
+            {tag
+              ? "Try a different tag, or clear the filter."
+              : "Every setup, every mistake — start with your next one."}
           </p>
-          <Link
-            href="/journal/new"
-            className="mt-4 inline-block text-sm text-accent hover:underline"
-          >
-            Log your first trade →
-          </Link>
+          {!tag && (
+            <Link
+              href="/journal/new"
+              className="mt-4 inline-block text-sm text-accent hover:underline"
+            >
+              Log your first trade →
+            </Link>
+          )}
         </div>
       ) : (
         <div className="space-y-3">

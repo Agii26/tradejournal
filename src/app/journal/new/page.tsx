@@ -1,10 +1,11 @@
 import { getTradingAccounts } from "@/lib/actions/accounts";
 import { createTrade } from "@/lib/actions/trades";
+import { getTagGroups } from "@/lib/actions/tags";
 import { TradeForm } from "@/components/trade-form";
 import { NewAccountInline } from "@/components/new-account-inline";
 
 export default async function NewTradePage() {
-  const accounts = await getTradingAccounts();
+  const [accounts, tagGroups] = await Promise.all([getTradingAccounts(), getTagGroups()]);
 
   return (
     <div>
@@ -15,6 +16,7 @@ export default async function NewTradePage() {
       ) : (
         <TradeForm
           tradingAccounts={accounts}
+          tagGroups={tagGroups}
           action={createTrade}
           submitLabel="Log trade"
         />
