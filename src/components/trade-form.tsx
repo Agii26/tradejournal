@@ -47,6 +47,9 @@ export function TradeForm({
     riskAmount?: number | null;
     fees?: number | null;
     setupGrade?: string | null;
+    confidenceRating?: number | null;
+    followedPlan?: boolean | null;
+    reflection?: string | null;
   };
   defaultSelectedTagIds?: string[];
   submitLabel?: string;
@@ -61,6 +64,12 @@ export function TradeForm({
   const [target, setTarget] = useState(defaultValues?.target?.toString() ?? "");
   const [riskAmount, setRiskAmount] = useState(defaultValues?.riskAmount?.toString() ?? "");
   const [fees, setFees] = useState(defaultValues?.fees?.toString() ?? "");
+  const [confidenceRating, setConfidenceRating] = useState(
+    defaultValues?.confidenceRating?.toString() ?? ""
+  );
+  const [followedPlan, setFollowedPlan] = useState<boolean | undefined>(
+    defaultValues?.followedPlan ?? undefined
+  );
 
   const preview = useMemo(() => {
     const ep = parseFloat(entryPrice);
@@ -285,6 +294,70 @@ export function TradeForm({
         </span>
         <TagPicker tagGroups={tagGroups} defaultSelectedIds={defaultSelectedTagIds} />
       </div>
+
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
+          <span className="mb-1.5 block text-[13px] font-medium text-ink">Confidence going in</span>
+          <div className="inline-flex flex-wrap gap-1" role="radiogroup" aria-label="Confidence going in, 1 to 10">
+            {Array.from({ length: 10 }, (_, i) => i + 1).map((n) => (
+              <label
+                key={n}
+                className={`flex h-8 w-8 cursor-pointer items-center justify-center rounded-md border text-xs font-medium tabular-nums transition-colors ${
+                  confidenceRating === String(n)
+                    ? "border-accent bg-accent text-canvas"
+                    : "border-hairline bg-surface text-muted hover:border-accent hover:text-ink"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="confidenceRating"
+                  value={n}
+                  checked={confidenceRating === String(n)}
+                  onChange={() => setConfidenceRating(String(n))}
+                  className="sr-only"
+                />
+                {n}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <span className="mb-1.5 block text-[13px] font-medium text-ink">Followed my plan?</span>
+          <div className="inline-flex overflow-hidden rounded-md border border-hairline">
+            {([true, false] as const).map((val) => (
+              <label
+                key={String(val)}
+                className={`cursor-pointer px-4 py-2 text-sm font-medium transition-colors ${
+                  followedPlan === val
+                    ? "bg-accent text-canvas"
+                    : "bg-surface text-muted hover:bg-accent-tint"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="followedPlan"
+                  value={String(val)}
+                  checked={followedPlan === val}
+                  onChange={() => setFollowedPlan(val)}
+                  className="sr-only"
+                />
+                {val ? "Yes" : "No"}
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <FormField label="Reflection" htmlFor="reflection" hint="What went well, what to improve — optional">
+        <textarea
+          id="reflection"
+          name="reflection"
+          rows={3}
+          defaultValue={defaultValues?.reflection ?? undefined}
+          className={inputClass}
+        />
+      </FormField>
 
       {preview && (
         <div className="rounded-lg border border-hairline bg-accent-tint px-5 py-4">

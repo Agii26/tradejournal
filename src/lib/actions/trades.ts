@@ -26,6 +26,9 @@ function parseTradeForm(formData: FormData) {
     riskAmount: formData.get("riskAmount"),
     fees: formData.get("fees"),
     setupGrade: formData.get("setupGrade"),
+    confidenceRating: formData.get("confidenceRating"),
+    followedPlan: formData.get("followedPlan"),
+    reflection: formData.get("reflection"),
   });
 }
 
@@ -163,6 +166,9 @@ export interface PlainTradeDetail {
   fees: number | null;
   netPnl: number | null;
   setupGrade: string | null;
+  confidenceRating: number | null;
+  followedPlan: boolean | null;
+  reflection: string | null;
   tradingAccount: { id: string; name: string; type: string };
   images: { id: string; url: string; kind: string | null }[];
   tags: { id: string; name: string; category: string }[];

@@ -93,6 +93,32 @@ export const DEFAULT_TAGS: { name: string; category: TagCategoryValue }[] = [
   { name: "Volatile", category: "CONTEXT" },
   // Context — catalyst
   { name: "News catalyst", category: "CONTEXT" },
+
+  // Mistakes
+  { name: "FOMO entry", category: "MISTAKE" },
+  { name: "Moved stop loss", category: "MISTAKE" },
+  { name: "Oversized position", category: "MISTAKE" },
+  { name: "Revenge trade", category: "MISTAKE" },
+  { name: "Ignored my plan", category: "MISTAKE" },
+  { name: "Chased price", category: "MISTAKE" },
+  { name: "No stop loss set", category: "MISTAKE" },
+  { name: "Exited early (fear)", category: "MISTAKE" },
+  { name: "Exited late (greed)", category: "MISTAKE" },
+  { name: "Overtraded", category: "MISTAKE" },
+  { name: "Hesitated on entry", category: "MISTAKE" },
+  { name: "Averaged down without a plan", category: "MISTAKE" },
+
+  // Emotions
+  { name: "Calm", category: "EMOTION" },
+  { name: "Confident", category: "EMOTION" },
+  { name: "Anxious", category: "EMOTION" },
+  { name: "Excited", category: "EMOTION" },
+  { name: "Bored", category: "EMOTION" },
+  { name: "Frustrated", category: "EMOTION" },
+  { name: "Tilted", category: "EMOTION" },
+  { name: "Hesitant", category: "EMOTION" },
+  { name: "Impatient", category: "EMOTION" },
+  { name: "Disciplined", category: "EMOTION" },
 ];
 
 export type TagCategoryValue =
@@ -121,4 +147,6 @@ export const TAG_CATEGORY_ORDER: TagCategoryValue[] = [
   "INDICATOR",
   "SMC",
   "CONTEXT",
+  "MISTAKE",
+  "EMOTION",
 ];

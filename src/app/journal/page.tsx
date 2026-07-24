@@ -2,7 +2,9 @@ import Link from "next/link";
 import { Plus, X } from "lucide-react";
 import { getTrades } from "@/lib/actions/trades";
 import { getTagGroups } from "@/lib/actions/tags";
+import { getTodayDayPlan } from "@/lib/actions/day-plans";
 import { TagFilterSelect } from "@/components/tag-filter-select";
+import { DayPlanWidget } from "@/components/day-plan-widget";
 
 function formatDate(d: string | Date) {
   return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
@@ -14,7 +16,11 @@ export default async function JournalPage({
   searchParams: Promise<{ tag?: string }>;
 }) {
   const { tag } = await searchParams;
-  const [trades, tagGroups] = await Promise.all([getTrades(tag), getTagGroups()]);
+  const [trades, tagGroups, todayPlan] = await Promise.all([
+    getTrades(tag),
+    getTagGroups(),
+    getTodayDayPlan(),
+  ]);
   const activeTag = tag
     ? tagGroups.flatMap((g) => g.tags).find((t) => t.id === tag)
     : undefined;
@@ -30,6 +36,8 @@ export default async function JournalPage({
           <Plus size={15} /> Log trade
         </Link>
       </div>
+
+      <DayPlanWidget initialPlan={todayPlan} />
 
       <div className="mb-8 flex items-center gap-3">
         <TagFilterSelect tagGroups={tagGroups} currentTagId={tag} />

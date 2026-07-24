@@ -49,6 +49,15 @@ export const tradeSchema = z
     riskAmount: optionalNumber,
     fees: optionalNumber,
     setupGrade: optionalString,
+    confidenceRating: z.preprocess(
+      (v) => (v === "" || v === undefined || v === null ? undefined : v),
+      z.coerce.number().int().min(1).max(10).optional()
+    ),
+    followedPlan: z.preprocess(
+      (v) => (v === "" || v === undefined || v === null ? undefined : v === "true"),
+      z.boolean().optional()
+    ),
+    reflection: optionalString,
   })
   .refine((data) => !data.exitPrice || data.exitAt, {
     message: "Exit date is required if exit price is set",
@@ -77,4 +86,26 @@ export const signupSchema = z.object({
 export const loginSchema = z.object({
   email: z.email("Enter a valid email"),
   password: z.string().min(1, "Required"),
+});
+
+const optionalScore = z.preprocess(
+  (v) => (v === "" || v === undefined || v === null ? undefined : v),
+  z.coerce.number().int().min(1).max(10).optional()
+);
+
+export const moodOptions = [
+  "Calm",
+  "Focused",
+  "Confident",
+  "Tired",
+  "Anxious",
+  "Distracted",
+  "Stressed",
+] as const;
+
+export const dayPlanSchema = z.object({
+  sleepScore: optionalScore,
+  stressLevel: optionalScore,
+  mood: optionalString,
+  notes: optionalString,
 });

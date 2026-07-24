@@ -92,6 +92,24 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
         </div>
       )}
 
+      {(trade.confidenceRating != null || trade.followedPlan != null || trade.reflection) && (
+        <div className="mb-8 rounded-lg border border-hairline bg-surface px-5 py-5">
+          <h2 className="mb-4 text-sm font-medium text-ink">Psychology</h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {stat("Confidence", trade.confidenceRating, trade.confidenceRating != null ? "/10" : "")}
+            {stat(
+              "Followed plan",
+              trade.followedPlan === null ? undefined : trade.followedPlan ? "Yes" : "No"
+            )}
+          </div>
+          {trade.reflection && (
+            <p className="mt-4 whitespace-pre-wrap text-[15px] leading-relaxed text-ink">
+              {trade.reflection}
+            </p>
+          )}
+        </div>
+      )}
+
       <h2 className="mb-3 text-sm font-medium text-ink">Screenshots</h2>
       <ImageUpload tradeId={trade.id} images={trade.images} />
     </div>

@@ -40,6 +40,9 @@ export default async function EditTradePage({ params }: { params: Promise<{ id: 
           riskAmount: trade.riskAmount,
           fees: trade.fees,
           setupGrade: trade.setupGrade,
+          confidenceRating: trade.confidenceRating,
+          followedPlan: trade.followedPlan,
+          reflection: trade.reflection,
         }}
       />
     </div>

@@ -22,14 +22,17 @@ export interface TagGroup {
 }
 
 /**
- * Seeds the full curated tag list the first time a user has zero tags.
- * Runs for brand-new signups (first visit to the tag picker) and, just as
- * importantly, backfills anyone who already had an account before this
- * feature existed — no separate migration script needed.
+ * Seeds any curated tag the user doesn't already have. Runs for brand-new
+ * signups (first visit to the tag picker) and self-heals for existing
+ * accounts whenever DEFAULT_TAGS grows — like today, adding Mistakes/
+ * Emotions on top of the original 81 from Phase 3. Comparing against
+ * DEFAULT_TAGS.length (not just "> 0") is what makes the self-healing part
+ * work; a user's own custom tags push them past that count too, so this
+ * still short-circuits to a single cheap query on every normal call.
  */
 async function ensureDefaultTags(userId: string) {
   const count = await prisma.tag.count({ where: { userId } });
-  if (count > 0) return;
+  if (count >= DEFAULT_TAGS.length) return;
 
   await prisma.tag.createMany({
     data: DEFAULT_TAGS.map((t) => ({ ...t, userId })),
