@@ -8,9 +8,19 @@ export default async function JournalLayout({ children }: { children: React.Reac
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-8">
       <header className="mb-10 flex items-center justify-between">
-        <Link href="/journal" className="font-display text-2xl text-ink">
-          TradeJournal
-        </Link>
+        <div className="flex items-center gap-6">
+          <Link href="/journal" className="font-display text-2xl text-ink">
+            TradeJournal
+          </Link>
+          <nav className="flex items-center gap-4 text-sm">
+            <Link href="/journal" className="text-muted hover:text-ink">
+              Journal
+            </Link>
+            <Link href="/journal/analytics" className="text-muted hover:text-ink">
+              Analytics
+            </Link>
+          </nav>
+        </div>
         <div className="flex items-center gap-4">
           <span className="hidden text-sm text-muted sm:inline">{session?.user?.email}</span>
           <ThemeToggle />
