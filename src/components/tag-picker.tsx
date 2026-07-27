@@ -86,13 +86,13 @@ export function TagPicker({
   return (
     <div>
       {selected.size > 0 && (
-        <div className="mb-3 flex flex-wrap gap-1.5">
+        <div className="mb-3 flex flex-wrap gap-2">
           {[...selected.values()].map((tag) => (
             <button
               key={tag.id}
               type="button"
               onClick={() => toggle(tag)}
-              className="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-xs text-canvas hover:opacity-90 cursor-pointer"
+              className="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1.5 text-xs text-canvas hover:opacity-90 cursor-pointer"
             >
               {tag.name}
               <X size={11} />
@@ -123,7 +123,7 @@ export function TagPicker({
               <button
                 type="button"
                 onClick={() => setOpenCategory(isOpen ? null : group.category)}
-                className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-medium text-ink cursor-pointer"
+                className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-ink cursor-pointer"
               >
                 <span>
                   {group.label}{" "}
@@ -138,7 +138,7 @@ export function TagPicker({
               </button>
 
               {isOpen && (
-                <div className="flex flex-wrap gap-1.5 px-4 pb-3">
+                <div className="flex flex-wrap gap-2 px-4 pb-3">
                   {group.tags.map((tag) => {
                     const isSelected = selected.has(tag.id);
                     return (
@@ -146,7 +146,7 @@ export function TagPicker({
                         key={tag.id}
                         type="button"
                         onClick={() => toggle(tag)}
-                        className={`rounded-full border px-2.5 py-1 text-xs transition-colors cursor-pointer ${
+                        className={`rounded-full border px-2.5 py-1.5 text-xs transition-colors cursor-pointer ${
                           isSelected
                             ? "border-accent bg-accent-tint text-accent"
                             : "border-hairline text-muted hover:border-accent hover:text-ink"
@@ -190,7 +190,7 @@ export function TagPicker({
                         setAddingTo(group.category);
                         setAddError(null);
                       }}
-                      className="inline-flex items-center gap-0.5 rounded-full border border-dashed border-hairline px-2.5 py-1 text-xs text-muted hover:border-accent hover:text-accent cursor-pointer"
+                      className="inline-flex items-center gap-0.5 rounded-full border border-dashed border-hairline px-2.5 py-1.5 text-xs text-muted hover:border-accent hover:text-accent cursor-pointer"
                     >
                       <Plus size={11} /> Custom
                     </button>

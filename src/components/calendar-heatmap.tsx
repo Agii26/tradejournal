@@ -77,12 +77,12 @@ export function CalendarHeatmap({ data }: { data: DailyPnl[] }) {
     <div className="rounded-lg border border-hairline bg-surface px-4 py-4">
       <div className="mb-3 flex items-center justify-between">
         <span className="text-sm font-medium text-ink">{monthLabel(year, month)}</span>
-        <div className="flex gap-1">
+        <div className="flex gap-2 -mr-2">
           <button
             type="button"
             onClick={() => shiftMonth(-1)}
             aria-label="Previous month"
-            className="rounded-md p-1 text-muted hover:bg-accent-tint hover:text-ink cursor-pointer"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-muted hover:bg-accent-tint hover:text-ink cursor-pointer"
           >
             <ChevronLeft size={16} />
           </button>
@@ -90,7 +90,7 @@ export function CalendarHeatmap({ data }: { data: DailyPnl[] }) {
             type="button"
             onClick={() => shiftMonth(1)}
             aria-label="Next month"
-            className="rounded-md p-1 text-muted hover:bg-accent-tint hover:text-ink cursor-pointer"
+            className="flex h-11 w-11 items-center justify-center rounded-md text-muted hover:bg-accent-tint hover:text-ink cursor-pointer"
           >
             <ChevronRight size={16} />
           </button>

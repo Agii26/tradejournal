@@ -94,8 +94,8 @@ export default async function JournalPage({
                 href={`/journal/${t.id}`}
                 className="block rounded-lg border border-hairline bg-surface px-5 py-4 transition-colors hover:border-accent"
               >
-                <div className="flex items-baseline justify-between">
-                  <div className="flex items-center gap-2 text-[15px] font-medium text-ink">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                  <div className="flex flex-wrap items-center gap-2 text-[15px] font-medium text-ink">
                     {t.symbol}
                     <span className="rounded-full bg-accent-tint px-2 py-0.5 text-xs font-normal text-accent">
                       {t.direction === "LONG" ? "Long" : "Short"}

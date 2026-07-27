@@ -46,7 +46,7 @@ export default async function AnalyticsPage() {
         </div>
       ) : (
         <>
-          <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-5">
+          <div className="mb-8 grid grid-cols-2 gap-3 min-[480px]:grid-cols-3 sm:grid-cols-5">
             <StatCard label="Win rate" value={fmtPercent(stats.winRate)} hint={`${stats.wins}W / ${stats.losses}L`} />
             <StatCard label="Profit factor" value={fmtRatio(stats.profitFactor)} />
             <StatCard label="Expectancy" value={fmtMoney(stats.expectancy)} hint="per trade" />
@@ -54,7 +54,7 @@ export default async function AnalyticsPage() {
             <StatCard label="Avg R-multiple" value={fmtR(stats.avgRMultiple)} />
           </div>
 
-          <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="mb-8 grid grid-cols-3 gap-3">
             <StatCard
               label="Current streak"
               value={
