@@ -12,7 +12,7 @@ export default async function NewTradePage() {
       <h1 className="mb-8 font-display text-3xl text-ink">Log a trade</h1>
 
       {accounts.length === 0 ? (
-        <NewAccountInline />
+        <NewAccountInline blocking />
       ) : (
         <TradeForm
           tradingAccounts={accounts}

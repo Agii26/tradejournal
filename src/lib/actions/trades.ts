@@ -174,18 +174,41 @@ export interface PlainTradeDetail {
   tags: { id: string; name: string; category: string }[];
 }
 
-export async function getTrades(filterTagId?: string): Promise<PlainTradeListItem[]> {
+const TRADES_PER_PAGE = 20;
+
+export interface PaginatedTrades {
+  trades: PlainTradeListItem[];
+  totalCount: number;
+  page: number;
+  totalPages: number;
+}
+
+export async function getTrades(filterTagId?: string, page = 1): Promise<PaginatedTrades> {
   const userId = await requireUserId();
-  const trades = await prisma.trade.findMany({
-    where: {
-      userId,
-      ...(filterTagId ? { tags: { some: { tagId: filterTagId } } } : {}),
-    },
-    orderBy: { entryAt: "desc" },
-    include: { tradingAccount: { select: { name: true } }, images: { take: 1 } },
-  });
+  const where = {
+    userId,
+    ...(filterTagId ? { tags: { some: { tagId: filterTagId } } } : {}),
+  };
+
+  const [trades, totalCount] = await Promise.all([
+    prisma.trade.findMany({
+      where,
+      orderBy: { entryAt: "desc" },
+      include: { tradingAccount: { select: { name: true } }, images: { take: 1 } },
+      skip: (page - 1) * TRADES_PER_PAGE,
+      take: TRADES_PER_PAGE,
+    }),
+    prisma.trade.count({ where }),
+  ]);
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- same cause as toPlainTrade's any: no generated Prisma client in this sandbox
-  return trades.map((t: any) => toPlainTrade(t) as PlainTradeListItem);
+  const plain = trades.map((t: any) => toPlainTrade(t) as PlainTradeListItem);
+  return {
+    trades: plain,
+    totalCount,
+    page,
+    totalPages: Math.max(1, Math.ceil(totalCount / TRADES_PER_PAGE)),
+  };
 }
 
 export async function getTrade(tradeId: string): Promise<PlainTradeDetail | null> {

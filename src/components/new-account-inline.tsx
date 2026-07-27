@@ -6,14 +6,16 @@ import { FormField, inputClass } from "@/components/form-field";
 import { SubmitButton } from "@/components/submit-button";
 import { tradingAccountTypes } from "@/lib/validation";
 
-export function NewAccountInline() {
+export function NewAccountInline({ blocking = false }: { blocking?: boolean }) {
   const [state, formAction] = useActionState(createTradingAccount, undefined);
 
   return (
     <div className="rounded-lg border border-hairline bg-surface px-6 py-6">
-      <p className="mb-4 text-sm text-muted">
-        No trading accounts yet — add one before logging your first trade.
-      </p>
+      {blocking && (
+        <p className="mb-4 text-sm text-muted">
+          No trading accounts yet — add one before logging your first trade.
+        </p>
+      )}
       <form action={formAction} className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <FormField label="Name" htmlFor="name">

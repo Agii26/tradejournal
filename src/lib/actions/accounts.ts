@@ -11,6 +11,7 @@ export interface PlainTradingAccount {
   broker: string | null;
   type: string;
   startingBalance: number;
+  tradeCount: number;
 }
 
 export async function getTradingAccounts(): Promise<PlainTradingAccount[]> {
@@ -18,6 +19,7 @@ export async function getTradingAccounts(): Promise<PlainTradingAccount[]> {
   const accounts = await prisma.tradingAccount.findMany({
     where: { userId },
     orderBy: { createdAt: "asc" },
+    include: { _count: { select: { trades: true } } },
   });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cascades from no generated Prisma client in this sandbox
   return accounts.map((a: any) => ({
@@ -26,6 +28,7 @@ export async function getTradingAccounts(): Promise<PlainTradingAccount[]> {
     broker: a.broker,
     type: a.type,
     startingBalance: Number(a.startingBalance),
+    tradeCount: a._count.trades,
   }));
 }
 
@@ -54,6 +57,7 @@ export async function createTradingAccount(
 
   revalidatePath("/journal");
   revalidatePath("/journal/new");
+  revalidatePath("/journal/accounts");
   return undefined;
 }
 

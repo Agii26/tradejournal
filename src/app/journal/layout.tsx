@@ -19,6 +19,12 @@ export default async function JournalLayout({ children }: { children: React.Reac
             <Link href="/journal/analytics" className="text-muted hover:text-ink">
               Analytics
             </Link>
+            <Link href="/journal/accounts" className="text-muted hover:text-ink">
+              Accounts
+            </Link>
+            <Link href="/journal/import" className="text-muted hover:text-ink">
+              Import
+            </Link>
           </nav>
         </div>
         <div className="flex items-center gap-4">
