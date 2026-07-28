@@ -144,6 +144,8 @@ export interface PlainTradeListItem {
   exitAt: Date | null;
   realizedR: number | null;
   tradingAccount: { name: string };
+  images: { url: string }[];
+  tags: { id: string; name: string }[];
 }
 
 export interface PlainTradeDetail {
@@ -174,7 +176,7 @@ export interface PlainTradeDetail {
   tags: { id: string; name: string; category: string }[];
 }
 
-const TRADES_PER_PAGE = 20;
+const TRADES_PER_PAGE = 21;
 
 export interface PaginatedTrades {
   trades: PlainTradeListItem[];
@@ -194,7 +196,11 @@ export async function getTrades(filterTagId?: string, page = 1): Promise<Paginat
     prisma.trade.findMany({
       where,
       orderBy: { entryAt: "desc" },
-      include: { tradingAccount: { select: { name: true } }, images: { take: 1 } },
+      include: {
+        tradingAccount: { select: { name: true } },
+        images: { take: 1 },
+        tags: { include: { tag: true } },
+      },
       skip: (page - 1) * TRADES_PER_PAGE,
       take: TRADES_PER_PAGE,
     }),
@@ -202,7 +208,11 @@ export async function getTrades(filterTagId?: string, page = 1): Promise<Paginat
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- same cause as toPlainTrade's any: no generated Prisma client in this sandbox
-  const plain = trades.map((t: any) => toPlainTrade(t) as PlainTradeListItem);
+  const plain = trades.map((t: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cascades from no generated Prisma client in this sandbox
+    const flatTags = t.tags.map((tt: any) => tt.tag);
+    return toPlainTrade({ ...t, tags: flatTags }) as PlainTradeListItem;
+  });
   return {
     trades: plain,
     totalCount,

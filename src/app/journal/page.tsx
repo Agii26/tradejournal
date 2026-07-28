@@ -5,10 +5,7 @@ import { getTagGroups } from "@/lib/actions/tags";
 import { getTodayDayPlan } from "@/lib/actions/day-plans";
 import { TagFilterSelect } from "@/components/tag-filter-select";
 import { DayPlanWidget } from "@/components/day-plan-widget";
-
-function formatDate(d: string | Date) {
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
+import { TradeCard } from "@/components/trade-card";
 
 export default async function JournalPage({
   searchParams,
@@ -87,33 +84,9 @@ export default async function JournalPage({
         </div>
       ) : (
         <>
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             {trades.map((t) => (
-              <Link
-                key={t.id}
-                href={`/journal/${t.id}`}
-                className="block rounded-lg border border-hairline bg-surface px-5 py-4 transition-colors hover:border-accent"
-              >
-                <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <div className="flex flex-wrap items-center gap-2 text-[15px] font-medium text-ink">
-                    {t.symbol}
-                    <span className="rounded-full bg-accent-tint px-2 py-0.5 text-xs font-normal text-accent">
-                      {t.direction === "LONG" ? "Long" : "Short"}
-                    </span>
-                    <span className="text-xs text-muted">{t.tradingAccount.name}</span>
-                  </div>
-                  <div className="tabular-nums text-lg font-medium text-ink">
-                    {t.realizedR !== null && t.realizedR !== undefined
-                      ? `${t.realizedR > 0 ? "+" : ""}${t.realizedR}R`
-                      : t.exitAt
-                        ? "—"
-                        : "Open"}
-                  </div>
-                </div>
-                <div className="mt-2 text-xs text-muted">
-                  {formatDate(t.entryAt)} · {t.assetClass}
-                </div>
-              </Link>
+              <TradeCard key={t.id} trade={t} />
             ))}
           </div>
 
