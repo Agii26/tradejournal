@@ -14,12 +14,14 @@ export default async function NewTradePage() {
       {accounts.length === 0 ? (
         <NewAccountInline blocking />
       ) : (
-        <TradeForm
-          tradingAccounts={accounts}
-          tagGroups={tagGroups}
-          action={createTrade}
-          submitLabel="Log trade"
-        />
+        <div className="max-w-3xl">
+          <TradeForm
+            tradingAccounts={accounts}
+            tagGroups={tagGroups}
+            action={createTrade}
+            submitLabel="Log trade"
+          />
+        </div>
       )}
     </div>
   );

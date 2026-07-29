@@ -11,7 +11,7 @@ export default async function AccountsPage() {
   const accounts = await getTradingAccounts();
 
   return (
-    <div>
+    <div className="max-w-3xl">
       <h1 className="mb-2 font-display text-3xl text-ink">Accounts</h1>
       <p className="mb-8 text-sm text-muted">
         Every trade belongs to one of these — add a demo or prop firm account any time.
