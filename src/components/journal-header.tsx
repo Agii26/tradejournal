@@ -38,7 +38,7 @@ export function JournalHeader({
       {/* Desktop: logo left, segmented nav pill true-centered, utility pill right — grid keeps the
           center pill centered on the viewport regardless of the side items' differing widths */}
       <header className="pointer-events-none fixed inset-x-0 top-0 z-40 hidden px-6 pt-4 sm:block">
-        <div className="mx-auto grid w-full max-w-6xl grid-cols-[1fr_auto_1fr] items-center">
+        <div className="mx-auto grid w-full max-w-4xl grid-cols-[1fr_auto_1fr] items-center">
           <Link href="/journal" className="pointer-events-auto justify-self-start font-display text-2xl text-ink">
             TradeJournal
           </Link>
