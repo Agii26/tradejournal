@@ -6,7 +6,7 @@ export default async function JournalLayout({ children }: { children: React.Reac
   const session = await auth();
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 pb-8 pt-24">
+    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 pb-8 pt-24">
       <JournalHeader
         userEmail={session?.user?.email}
         rightSlot={

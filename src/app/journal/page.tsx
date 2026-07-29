@@ -33,9 +33,10 @@ export default async function JournalPage({
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-8 flex flex-wrap items-center justify-between gap-3">
         <h1 className="font-display text-3xl text-ink">Journal</h1>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <DayPlanWidget initialPlan={todayPlan} />
           <a
             href="/api/export/trades"
             className="inline-flex items-center gap-1.5 rounded-md border border-hairline px-3 py-2 text-sm text-ink hover:bg-accent-tint"
@@ -50,8 +51,6 @@ export default async function JournalPage({
           </Link>
         </div>
       </div>
-
-      <DayPlanWidget initialPlan={todayPlan} />
 
       <div className="mb-8 flex items-center gap-3">
         <TagFilterSelect tagGroups={tagGroups} currentTagId={tag} />
