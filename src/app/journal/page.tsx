@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, X, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import { getTrades } from "@/lib/actions/trades";
 import { getTagGroups } from "@/lib/actions/tags";
 import { getTodayDayPlan } from "@/lib/actions/day-plans";
@@ -19,9 +19,6 @@ export default async function JournalPage({
     getTagGroups(),
     getTodayDayPlan(),
   ]);
-  const activeTag = tag
-    ? tagGroups.flatMap((g) => g.tags).find((t) => t.id === tag)
-    : undefined;
 
   function pageHref(p: number) {
     const params = new URLSearchParams();
@@ -33,16 +30,8 @@ export default async function JournalPage({
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_1fr_260px]">
-      <aside>
+      <aside className="min-w-0">
         <TagFilterSelect tagGroups={tagGroups} currentTagId={tag} />
-        {activeTag && (
-          <Link
-            href="/journal"
-            className="mt-2 inline-flex items-center gap-1 text-xs text-muted hover:text-ink"
-          >
-            <X size={12} /> Clear &ldquo;{activeTag.name}&rdquo;
-          </Link>
-        )}
       </aside>
 
       <div>
@@ -118,7 +107,7 @@ export default async function JournalPage({
         )}
       </div>
 
-      <aside>
+      <aside className="min-w-0">
         <DayPlanWidget initialPlan={todayPlan} />
       </aside>
     </div>

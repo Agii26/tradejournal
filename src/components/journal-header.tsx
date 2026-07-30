@@ -35,38 +35,37 @@ export function JournalHeader({
 
   return (
     <>
-      {/* Desktop: one continuous floating bar — logo pill and utility pill are visually
-          distinct sub-groups, nav links sit plain between them */}
+      {/* Desktop: one continuous floating bar. Grid (not flex) so the nav links stay
+          truly centered on the bar regardless of the logo/utility pill's widths */}
       <header className="pointer-events-none fixed inset-x-0 top-0 z-40 hidden px-6 pt-4 sm:block">
         <div
-          className={`pointer-events-auto mx-auto flex w-full max-w-7xl items-center justify-between rounded-2xl border border-hairline bg-surface px-3 py-2.5 ${pillShadow}`}
+          className={`pointer-events-auto mx-auto grid w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center rounded-2xl border border-hairline bg-surface px-3 py-2.5 ${pillShadow}`}
         >
-          <div className="flex items-center gap-7">
-            <Link
-              href="/journal"
-              className="rounded-full border border-hairline px-3 py-1.5 font-display text-lg text-ink"
-            >
-              TradeJournal
-            </Link>
-            <nav className="flex items-center gap-6 text-sm">
-              {NAV_LINKS.map((link) => {
-                const active = isActive(pathname, link.href);
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`transition-colors ${active ? "font-medium text-accent" : "text-muted hover:text-ink"}`}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
+          <Link
+            href="/journal"
+            className="justify-self-start rounded-full border border-hairline px-3 py-1.5 font-display text-lg text-ink"
+          >
+            TradeJournal
+          </Link>
+
+          <nav className="flex items-center gap-6 justify-self-center text-sm">
+            {NAV_LINKS.map((link) => {
+              const active = isActive(pathname, link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`transition-colors ${active ? "font-medium text-accent" : "text-muted hover:text-ink"}`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
 
           <div
             title={userEmail ?? undefined}
-            className="flex items-center gap-3 rounded-full border border-hairline px-3.5 py-1.5"
+            className="flex items-center justify-self-end gap-3 rounded-full border border-hairline px-3.5 py-1.5"
           >
             {rightSlot}
           </div>
