@@ -35,26 +35,27 @@ export function JournalHeader({
 
   return (
     <>
-      {/* Desktop: logo left, segmented nav pill true-centered, utility pill right — grid keeps the
-          center pill centered on the viewport regardless of the side items' differing widths */}
+      {/* Desktop: one continuous floating bar. Grid (not flex) so the nav links stay
+          truly centered on the bar regardless of the logo/utility pill's widths */}
       <header className="pointer-events-none fixed inset-x-0 top-0 z-40 hidden px-6 pt-4 sm:block">
-        <div className="mx-auto grid w-full max-w-4xl grid-cols-[1fr_auto_1fr] items-center">
-          <Link href="/journal" className="pointer-events-auto justify-self-start font-display text-2xl text-ink">
+        <div
+          className={`pointer-events-auto mx-auto grid w-full max-w-7xl grid-cols-[1fr_auto_1fr] items-center rounded-2xl border border-hairline bg-surface px-3 py-2.5 ${pillShadow}`}
+        >
+          <Link
+            href="/journal"
+            className="justify-self-start rounded-full border border-hairline px-3 py-1.5 font-display text-lg text-ink"
+          >
             TradeJournal
           </Link>
 
-          <nav
-            className={`pointer-events-auto flex items-center gap-1 justify-self-center rounded-full border border-hairline bg-surface p-1.5 ${pillShadow}`}
-          >
+          <nav className="flex items-center gap-6 justify-self-center text-sm">
             {NAV_LINKS.map((link) => {
               const active = isActive(pathname, link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
-                    active ? "bg-accent-tint font-medium text-accent" : "text-muted hover:text-ink"
-                  }`}
+                  className={`transition-colors ${active ? "font-medium text-accent" : "text-muted hover:text-ink"}`}
                 >
                   {link.label}
                 </Link>
@@ -64,7 +65,7 @@ export function JournalHeader({
 
           <div
             title={userEmail ?? undefined}
-            className={`pointer-events-auto flex items-center justify-self-end gap-3 rounded-full border border-hairline bg-surface px-4 py-2 ${pillShadow}`}
+            className="flex items-center justify-self-end gap-3 rounded-full border border-hairline px-3.5 py-1.5"
           >
             {rightSlot}
           </div>

@@ -19,7 +19,9 @@ export default async function ImportPage() {
           <p className="mt-1 text-sm text-muted">Add one on the Accounts page first.</p>
         </div>
       ) : (
-        <CsvImportWizard tradingAccounts={accounts} />
+        <div className="max-w-4xl">
+          <CsvImportWizard tradingAccounts={accounts} />
+        </div>
       )}
     </div>
   );

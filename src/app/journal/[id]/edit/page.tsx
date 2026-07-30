@@ -18,33 +18,35 @@ export default async function EditTradePage({ params }: { params: Promise<{ id: 
   return (
     <div>
       <h1 className="mb-8 font-display text-3xl text-ink">Edit trade</h1>
-      <TradeForm
-        tradingAccounts={accounts}
-        tagGroups={tagGroups}
-        action={boundUpdate}
-        submitLabel="Save changes"
-        defaultSelectedTagIds={trade.tags.map((t) => t.id)}
-        defaultValues={{
-          tradingAccountId: trade.tradingAccount.id,
-          symbol: trade.symbol,
-          assetClass: trade.assetClass,
-          direction: trade.direction,
-          entryAt: trade.entryAt,
-          exitAt: trade.exitAt,
-          entryPrice: trade.entryPrice,
-          exitPrice: trade.exitPrice,
-          quantity: trade.quantity,
-          stopLoss: trade.stopLoss,
-          target: trade.target,
-          exitReason: trade.exitReason,
-          riskAmount: trade.riskAmount,
-          fees: trade.fees,
-          setupGrade: trade.setupGrade,
-          confidenceRating: trade.confidenceRating,
-          followedPlan: trade.followedPlan,
-          reflection: trade.reflection,
-        }}
-      />
+      <div className="max-w-3xl">
+        <TradeForm
+          tradingAccounts={accounts}
+          tagGroups={tagGroups}
+          action={boundUpdate}
+          submitLabel="Save changes"
+          defaultSelectedTagIds={trade.tags.map((t) => t.id)}
+          defaultValues={{
+            tradingAccountId: trade.tradingAccount.id,
+            symbol: trade.symbol,
+            assetClass: trade.assetClass,
+            direction: trade.direction,
+            entryAt: trade.entryAt,
+            exitAt: trade.exitAt,
+            entryPrice: trade.entryPrice,
+            exitPrice: trade.exitPrice,
+            quantity: trade.quantity,
+            stopLoss: trade.stopLoss,
+            target: trade.target,
+            exitReason: trade.exitReason,
+            riskAmount: trade.riskAmount,
+            fees: trade.fees,
+            setupGrade: trade.setupGrade,
+            confidenceRating: trade.confidenceRating,
+            followedPlan: trade.followedPlan,
+            reflection: trade.reflection,
+          }}
+        />
+      </div>
     </div>
   );
 }
