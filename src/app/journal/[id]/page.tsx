@@ -103,7 +103,7 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
             )}
           </div>
           {trade.reflection && (
-            <p className="mt-4 max-w-2xl whitespace-pre-wrap text-[15px] leading-relaxed text-ink">
+            <p className="mt-4 whitespace-pre-wrap text-[15px] leading-relaxed text-ink">
               {trade.reflection}
             </p>
           )}

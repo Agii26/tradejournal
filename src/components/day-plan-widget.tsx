@@ -14,33 +14,34 @@ export function DayPlanWidget({ initialPlan }: { initialPlan: PlainDayPlan | nul
   const hasPlan = !!initialPlan;
 
   return (
-    <div className="rounded-lg border border-hairline bg-surface">
+    <div className="mb-8 rounded-lg border border-hairline bg-surface">
       <button
         type="button"
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left cursor-pointer"
+        className="flex w-full items-center justify-between px-5 py-3.5 text-left cursor-pointer"
       >
         <span className="text-sm font-medium text-ink">
           {hasPlan ? "Today's check-in" : "How are you feeling today?"}
         </span>
-        <ChevronDown size={15} className={`text-muted transition-transform ${expanded ? "rotate-180" : ""}`} />
+        <div className="flex items-center gap-3">
+          {hasPlan && !expanded && (
+            <span className="text-xs text-muted">
+              {[
+                initialPlan.mood,
+                initialPlan.sleepScore != null ? `Sleep ${initialPlan.sleepScore}/10` : null,
+                initialPlan.stressLevel != null ? `Stress ${initialPlan.stressLevel}/10` : null,
+              ]
+                .filter(Boolean)
+                .join(" · ") || "Logged"}
+            </span>
+          )}
+          <ChevronDown size={15} className={`text-muted transition-transform ${expanded ? "rotate-180" : ""}`} />
+        </div>
       </button>
 
-      {hasPlan && !expanded && (
-        <p className="px-4 pb-3 text-xs text-muted">
-          {[
-            initialPlan!.mood,
-            initialPlan!.sleepScore != null ? `Sleep ${initialPlan!.sleepScore}/10` : null,
-            initialPlan!.stressLevel != null ? `Stress ${initialPlan!.stressLevel}/10` : null,
-          ]
-            .filter(Boolean)
-            .join(" · ") || "Logged"}
-        </p>
-      )}
-
       {expanded && (
-        <form action={formAction} className="space-y-4 border-t border-hairline px-4 py-4">
-          <div className="grid grid-cols-2 gap-3">
+        <form action={formAction} className="space-y-4 border-t border-hairline px-5 py-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             <FormField label="Sleep" htmlFor="sleepScore" hint="1–10">
               <input
                 id="sleepScore"
@@ -63,17 +64,22 @@ export function DayPlanWidget({ initialPlan }: { initialPlan: PlainDayPlan | nul
                 className={`${inputClass} tabular-nums`}
               />
             </FormField>
+            <FormField label="Mood" htmlFor="mood">
+              <select
+                id="mood"
+                name="mood"
+                defaultValue={initialPlan?.mood ?? ""}
+                className={inputClass}
+              >
+                <option value="">—</option>
+                {moodOptions.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+            </FormField>
           </div>
-          <FormField label="Mood" htmlFor="mood">
-            <select id="mood" name="mood" defaultValue={initialPlan?.mood ?? ""} className={inputClass}>
-              <option value="">—</option>
-              {moodOptions.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-          </FormField>
           <FormField label="Notes" htmlFor="notes" hint="Anything affecting how you'll trade today — optional">
             <textarea
               id="notes"
