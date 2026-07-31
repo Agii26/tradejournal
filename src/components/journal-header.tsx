@@ -10,6 +10,7 @@ const NAV_LINKS = [
   { href: "/journal/analytics", label: "Analytics" },
   { href: "/journal/accounts", label: "Accounts" },
   { href: "/journal/import", label: "Import" },
+  { href: "/discover", label: "Discover" },
 ];
 
 const SECTION_ROOTS = ["/journal/analytics", "/journal/accounts", "/journal/import"];
