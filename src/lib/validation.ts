@@ -109,3 +109,13 @@ export const dayPlanSchema = z.object({
   mood: optionalString,
   notes: optionalString,
 });
+
+// Lowercased on submit so "Benzon" and "benzon" can't both exist as separate
+// usernames — the displayed/public handle is always the lowercase form.
+export const usernameSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(3, "At least 3 characters")
+  .max(20, "20 characters max")
+  .regex(/^[a-z0-9_-]+$/, "Letters, numbers, underscore, hyphen only");

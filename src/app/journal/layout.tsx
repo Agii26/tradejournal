@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { Settings } from "lucide-react";
 import { auth, signOut } from "@/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { JournalHeader } from "@/components/journal-header";
@@ -11,6 +13,13 @@ export default async function JournalLayout({ children }: { children: React.Reac
         userEmail={session?.user?.email}
         rightSlot={
           <div className="flex items-center gap-3">
+            <Link
+              href="/journal/settings"
+              aria-label="Settings"
+              className="flex h-7 w-7 items-center justify-center rounded-full text-ink hover:bg-accent-tint"
+            >
+              <Settings size={14} />
+            </Link>
             <ThemeToggle />
             <form
               action={async () => {
