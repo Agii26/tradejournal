@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/require-user";
 import { tradeSchema } from "@/lib/validation";
 import { computeTradeMetrics } from "@/lib/trade-metrics";
+import { toPlainTrade } from "@/lib/trade-transform";
 
 export type ActionState = { error?: string } | undefined;
 
@@ -240,35 +241,8 @@ export async function getTrade(tradeId: string): Promise<PlainTradeDetail | null
 /**
  * Prisma's Decimal fields are decimal.js instances server-side — they don't
  * survive the Server->Client Component boundary as-is, so every number that
- * might reach a Client Component gets converted here first.
+ * might reach a Client Component gets converted here first. Defined in
+ * @/lib/trade-transform (no "use server" there) and imported above —
+ * exporting it from this file broke the production build, since every
+ * export from a "use server" file must be async and this isn't.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function toPlainTrade(trade: any) {
-  const decimalFields = [
-    "entryPrice",
-    "exitPrice",
-    "quantity",
-    "stopLoss",
-    "target",
-    "riskAmount",
-    "plannedRR",
-    "realizedR",
-    "grossPnl",
-    "fees",
-    "netPnl",
-  ] as const;
-
-  const plain = { ...trade };
-  for (const field of decimalFields) {
-    if (plain[field] !== null && plain[field] !== undefined) {
-      plain[field] = Number(plain[field]);
-    }
-  }
-  if (plain.tradingAccount?.startingBalance !== undefined) {
-    plain.tradingAccount = {
-      ...plain.tradingAccount,
-      startingBalance: Number(plain.tradingAccount.startingBalance),
-    };
-  }
-  return plain;
-}

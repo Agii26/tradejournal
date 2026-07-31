@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/require-user";
 import { usernameSchema } from "@/lib/validation";
-import { toPlainTrade } from "@/lib/actions/trades";
+import { toPlainTrade } from "@/lib/trade-transform";
 import type { PlainTradeListItem, PlainTradeDetail } from "@/lib/actions/trades";
 
 export interface PlainUserSettings {
