@@ -243,7 +243,7 @@ export async function getTrade(tradeId: string): Promise<PlainTradeDetail | null
  * might reach a Client Component gets converted here first.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function toPlainTrade(trade: any) {
+export function toPlainTrade(trade: any) {
   const decimalFields = [
     "entryPrice",
     "exitPrice",

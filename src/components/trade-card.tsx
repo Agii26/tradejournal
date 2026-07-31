@@ -19,7 +19,7 @@ function getOutcome(trade: PlainTradeListItem): { label: string; tone: "win" | "
   return { label: "Open", tone: "neutral" };
 }
 
-export function TradeCard({ trade }: { trade: PlainTradeListItem }) {
+export function TradeCard({ trade, href }: { trade: PlainTradeListItem; href?: string }) {
   const outcome = getOutcome(trade);
   const image = trade.images[0]?.url;
   const visibleTags = trade.tags.slice(0, MAX_VISIBLE_TAGS);
@@ -27,7 +27,7 @@ export function TradeCard({ trade }: { trade: PlainTradeListItem }) {
 
   return (
     <Link
-      href={`/journal/${trade.id}`}
+      href={href ?? `/journal/${trade.id}`}
       className="block overflow-hidden rounded-lg border border-hairline bg-surface transition-colors hover:border-accent"
     >
       <div className="relative aspect-[16/10] bg-canvas">
