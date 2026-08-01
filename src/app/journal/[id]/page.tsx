@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Pencil } from "lucide-react";
+import { Lock, Pencil } from "lucide-react";
 import { getTrade, deleteTrade } from "@/lib/actions/trades";
 import { ImageUpload } from "@/components/image-upload";
 import { DeleteTradeButton } from "@/components/delete-trade-button";
@@ -38,6 +38,11 @@ export default async function TradeDetailPage({ params }: { params: Promise<{ id
             <span className="rounded-full bg-accent-tint px-2.5 py-0.5 text-xs text-accent">
               {trade.direction === "LONG" ? "Long" : "Short"}
             </span>
+            {trade.isPrivate && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-hairline px-2.5 py-0.5 text-xs text-muted">
+                <Lock size={11} /> Private
+              </span>
+            )}
           </div>
           <p className="mt-1 text-sm text-muted">
             {trade.tradingAccount.name} · {trade.assetClass} · {formatDateTime(trade.entryAt)}
