@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { getUserSettings } from "@/lib/actions/profile";
 import { SettingsForm } from "@/components/settings-form";
-import { ProfileImageUpload } from "@/components/profile-image-upload";
+import { ProfileHeaderUpload } from "@/components/profile-header-upload";
 
 export default async function SettingsPage() {
   const settings = await getUserSettings();
@@ -16,10 +16,7 @@ export default async function SettingsPage() {
         Your public profile — pick a username and choose whether it&rsquo;s searchable.
       </p>
 
-      <div className="mb-6 space-y-4">
-        <ProfileImageUpload kind="cover" currentUrl={settings.coverImage} />
-        <ProfileImageUpload kind="avatar" currentUrl={settings.image} />
-      </div>
+      <ProfileHeaderUpload initialImage={settings.image} initialCoverImage={settings.coverImage} />
 
       <SettingsForm initial={settings} profileUrl={profileUrl} />
     </div>
