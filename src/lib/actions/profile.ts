@@ -1,24 +1,35 @@
 "use server";
 
+import { randomUUID } from "crypto";
+import { PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireUserId } from "@/lib/require-user";
 import { usernameSchema } from "@/lib/validation";
 import { toPlainTrade } from "@/lib/trade-transform";
+import { r2, R2_BUCKET, R2_PUBLIC_URL } from "@/lib/r2";
 import type { PlainTradeListItem, PlainTradeDetail } from "@/lib/actions/trades";
 
 export interface PlainUserSettings {
   username: string | null;
   isPublicProfile: boolean;
+  image: string | null;
+  coverImage: string | null;
 }
 
 export async function getUserSettings(): Promise<PlainUserSettings> {
   const userId = await requireUserId();
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
-    select: { username: true, isPublicProfile: true },
+    select: { username: true, isPublicProfile: true, image: true, coverImage: true },
   });
-  return { username: user.username, isPublicProfile: user.isPublicProfile };
+  return {
+    username: user.username,
+    isPublicProfile: user.isPublicProfile,
+    image: user.image,
+    coverImage: user.coverImage,
+  };
 }
 
 export type ActionState = { error?: string; success?: boolean } | undefined;
@@ -48,6 +59,65 @@ export async function updateUserSettings(
 
   revalidatePath("/journal/settings");
   return { success: true };
+}
+
+const ALLOWED_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
+const MAX_PROFILE_IMAGE_BYTES = 5 * 1024 * 1024; // 5MB — profile images, smaller than trade screenshots
+
+export async function getProfileImageUploadUrl(
+  kind: "avatar" | "cover",
+  filename: string,
+  contentType: string,
+  size: number
+) {
+  const userId = await requireUserId();
+
+  if (!ALLOWED_IMAGE_TYPES.includes(contentType)) {
+    throw new Error("Only PNG, JPEG, WEBP, or GIF images are allowed");
+  }
+  if (size > MAX_PROFILE_IMAGE_BYTES) {
+    throw new Error("Image is larger than 5MB");
+  }
+
+  const ext = filename.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+  const key = `${kind}s/${userId}/${randomUUID()}.${ext}`;
+
+  const uploadUrl = await getSignedUrl(
+    r2,
+    new PutObjectCommand({ Bucket: R2_BUCKET, Key: key, ContentType: contentType }),
+    { expiresIn: 300 }
+  );
+
+  return { uploadUrl, publicUrl: `${R2_PUBLIC_URL}/${key}` };
+}
+
+export async function updateProfileImage(kind: "avatar" | "cover", url: string) {
+  const userId = await requireUserId();
+
+  const current = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+    select: { image: true, coverImage: true, username: true },
+  });
+  const oldUrl = kind === "avatar" ? current.image : current.coverImage;
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: kind === "avatar" ? { image: url } : { coverImage: url },
+  });
+
+  // Best-effort cleanup of the replaced image — don't let an R2 hiccup block
+  // the actual profile update, the DB record is already correct either way.
+  if (oldUrl) {
+    const key = oldUrl.replace(`${R2_PUBLIC_URL}/`, "");
+    try {
+      await r2.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: key }));
+    } catch {
+      // Object may already be gone, or was never an R2 URL — fine either way.
+    }
+  }
+
+  revalidatePath("/journal/settings");
+  if (current.username) revalidatePath(`/u/${current.username}`);
 }
 
 // --- Everything below powers /discover and /u/[username] — unauthenticated
