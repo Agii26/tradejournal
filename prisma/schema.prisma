@@ -17,7 +17,8 @@ model User {
   name          String?
   email         String    @unique
   emailVerified DateTime?
-  image         String?
+  image         String? // avatar
+  coverImage    String?
   password      String? // bcrypt hash, only used by the Credentials provider
 
   username        String?  @unique // lowercase, set via /journal/settings — null until user picks one
@@ -29,10 +30,26 @@ model User {
   trades          Trade[]
   tags            Tag[]
   dayPlans        DayPlan[]
+  following       Follow[] @relation("Follower") // Follow rows where I'm the one following -> people I follow
+  followers       Follow[] @relation("Followed") // Follow rows where I'm the target -> people who follow me
 
   createdAt DateTime @default(now())
 
   @@map("users")
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("Followed", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])
+  @@index([followingId]) // powers "who follows this user" lookups/counts
+  @@map("follows")
 }
 
 model Account {
