@@ -58,6 +58,7 @@ export const tradeSchema = z
       z.boolean().optional()
     ),
     reflection: optionalString,
+    isPrivate: z.preprocess((v) => v === "on", z.boolean()),
   })
   .refine((data) => !data.exitPrice || data.exitAt, {
     message: "Exit date is required if exit price is set",

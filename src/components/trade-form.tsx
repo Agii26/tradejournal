@@ -50,6 +50,7 @@ export function TradeForm({
     confidenceRating?: number | null;
     followedPlan?: boolean | null;
     reflection?: string | null;
+    isPrivate?: boolean;
   };
   defaultSelectedTagIds?: string[];
   submitLabel?: string;
@@ -358,6 +359,22 @@ export function TradeForm({
           className={inputClass}
         />
       </FormField>
+
+      <label className="flex cursor-pointer items-start gap-3 rounded-md border border-hairline px-4 py-3">
+        <input
+          type="checkbox"
+          name="isPrivate"
+          defaultChecked={defaultValues?.isPrivate ?? false}
+          className="mt-0.5 accent-accent"
+        />
+        <span>
+          <span className="block text-sm font-medium text-ink">Keep this trade private</span>
+          <span className="mt-0.5 block text-xs text-muted">
+            Excludes it from your public profile, if you have one. Everything else you log is
+            included by default.
+          </span>
+        </span>
+      </label>
 
       {preview && (
         <div className="rounded-lg border border-hairline bg-accent-tint px-5 py-4">

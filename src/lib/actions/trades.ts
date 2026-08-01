@@ -30,6 +30,7 @@ function parseTradeForm(formData: FormData) {
     confidenceRating: formData.get("confidenceRating"),
     followedPlan: formData.get("followedPlan"),
     reflection: formData.get("reflection"),
+    isPrivate: formData.get("isPrivate"),
   });
 }
 
@@ -147,6 +148,7 @@ export interface PlainTradeListItem {
   tradingAccount: { name: string };
   images: { url: string }[];
   tags: { id: string; name: string }[];
+  isPrivate: boolean;
 }
 
 export interface PlainTradeDetail {
@@ -175,6 +177,7 @@ export interface PlainTradeDetail {
   tradingAccount: { id: string; name: string; type: string };
   images: { id: string; url: string; kind: string | null }[];
   tags: { id: string; name: string; category: string }[];
+  isPrivate: boolean;
 }
 
 const TRADES_PER_PAGE = 21;

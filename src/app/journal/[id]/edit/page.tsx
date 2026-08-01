@@ -44,6 +44,7 @@ export default async function EditTradePage({ params }: { params: Promise<{ id: 
             confidenceRating: trade.confidenceRating,
             followedPlan: trade.followedPlan,
             reflection: trade.reflection,
+            isPrivate: trade.isPrivate,
           }}
         />
       </div>

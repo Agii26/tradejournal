@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ImageOff } from "lucide-react";
+import { ImageOff, Lock } from "lucide-react";
 import type { PlainTradeListItem } from "@/lib/actions/trades";
 
 const MAX_VISIBLE_TAGS = 3;
@@ -38,6 +38,14 @@ export function TradeCard({ trade, href }: { trade: PlainTradeListItem; href?: s
           <div className="flex h-full w-full items-center justify-center text-muted">
             <ImageOff size={22} />
           </div>
+        )}
+        {trade.isPrivate && (
+          <span
+            title="Private — excluded from your public profile"
+            className="absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-canvas"
+          >
+            <Lock size={12} />
+          </span>
         )}
         <span
           className={`absolute right-2 top-2 rounded-full px-2.5 py-1 text-xs font-medium ${
