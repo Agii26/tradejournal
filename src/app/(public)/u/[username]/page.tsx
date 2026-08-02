@@ -1,8 +1,18 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, User } from "lucide-react";
 import { getPublicProfile } from "@/lib/actions/profile";
 import { TradeCard } from "@/components/trade-card";
+import { FollowButton } from "@/components/follow-button";
+
+function fmtPercent(n: number | null) {
+  return n === null ? "—" : `${n}%`;
+}
+
+function fmtRatio(n: number | null) {
+  if (n === null) return "—";
+  return n === Infinity ? "∞" : n.toFixed(2);
+}
 
 export default async function PublicProfilePage({
   params,
@@ -22,10 +32,85 @@ export default async function PublicProfilePage({
 
   return (
     <div>
-      <h1 className="mb-1 font-display text-3xl text-ink">@{profile.username}</h1>
-      <p className="mb-8 text-sm text-muted">
-        {profile.totalCount} public trade{profile.totalCount === 1 ? "" : "s"}
-      </p>
+      <div className="mb-8 overflow-visible rounded-lg border border-hairline bg-surface">
+        <div className="relative">
+          <div className="h-36 w-full overflow-hidden rounded-t-lg bg-canvas">
+            {profile.coverImage && (
+              // eslint-disable-next-line @next/next/no-img-element -- external R2 URL, matches image-upload.tsx convention
+              <img src={profile.coverImage} alt="" className="h-full w-full object-cover" />
+            )}
+          </div>
+          <div className="absolute left-5 top-[104px] flex h-[84px] w-[84px] items-center justify-center overflow-hidden rounded-full border-4 border-surface bg-canvas">
+            {profile.image ? (
+              // eslint-disable-next-line @next/next/no-img-element -- external R2 URL, matches image-upload.tsx convention
+              <img src={profile.image} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <User size={28} className="text-muted" />
+            )}
+          </div>
+        </div>
+
+        <div className="px-5 pb-5 pt-14">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="font-display text-2xl text-ink">
+                {profile.name || `@${profile.username}`}
+              </div>
+              <div className="text-sm text-muted">@{profile.username}</div>
+            </div>
+            {profile.isOwnProfile ? (
+              <Link
+                href="/journal/settings"
+                className="whitespace-nowrap rounded-full border border-hairline px-4 py-1.5 text-sm text-ink hover:bg-accent-tint"
+              >
+                Edit profile
+              </Link>
+            ) : (
+              <FollowButton
+                username={profile.username}
+                initialFollowing={profile.viewerFollows}
+                isLoggedIn={profile.viewerIsLoggedIn}
+              />
+            )}
+          </div>
+
+          {profile.bio && (
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-ink">{profile.bio}</p>
+          )}
+
+          <div className="mt-3 flex gap-4 text-sm">
+            <span>
+              <span className="font-medium text-ink">{profile.followingCount}</span>{" "}
+              <span className="text-muted">Following</span>
+            </span>
+            <span>
+              <span className="font-medium text-ink">{profile.followerCount}</span>{" "}
+              <span className="text-muted">Followers</span>
+            </span>
+          </div>
+
+          <div className="mt-5 flex gap-8 border-t border-hairline pt-4">
+            <div>
+              <div className="tabular-nums text-lg font-medium text-ink">
+                {fmtPercent(profile.stats.winRate)}
+              </div>
+              <div className="text-xs text-muted">Win rate</div>
+            </div>
+            <div>
+              <div className="tabular-nums text-lg font-medium text-ink">
+                {profile.stats.publicTradeCount}
+              </div>
+              <div className="text-xs text-muted">Public trades</div>
+            </div>
+            <div>
+              <div className="tabular-nums text-lg font-medium text-accent">
+                {fmtRatio(profile.stats.profitFactor)}
+              </div>
+              <div className="text-xs text-muted">Profit factor</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {profile.trades.length === 0 ? (
         <p className="text-sm text-muted">No public trades yet.</p>

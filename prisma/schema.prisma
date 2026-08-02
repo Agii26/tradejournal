@@ -19,6 +19,7 @@ model User {
   emailVerified DateTime?
   image         String? // avatar
   coverImage    String?
+  bio           String? // short profile bio, shown on the public profile page
   password      String? // bcrypt hash, only used by the Credentials provider
 
   username        String?  @unique // lowercase, set via /journal/settings — null until user picks one

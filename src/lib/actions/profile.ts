@@ -9,6 +9,8 @@ import { requireUserId } from "@/lib/require-user";
 import { usernameSchema } from "@/lib/validation";
 import { toPlainTrade } from "@/lib/trade-transform";
 import { r2, R2_BUCKET, R2_PUBLIC_URL } from "@/lib/r2";
+import { auth } from "@/auth";
+import { computeAnalytics } from "@/lib/analytics";
 import type { PlainTradeListItem, PlainTradeDetail } from "@/lib/actions/trades";
 
 export interface PlainUserSettings {
@@ -16,19 +18,21 @@ export interface PlainUserSettings {
   isPublicProfile: boolean;
   image: string | null;
   coverImage: string | null;
+  bio: string | null;
 }
 
 export async function getUserSettings(): Promise<PlainUserSettings> {
   const userId = await requireUserId();
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: userId },
-    select: { username: true, isPublicProfile: true, image: true, coverImage: true },
+    select: { username: true, isPublicProfile: true, image: true, coverImage: true, bio: true },
   });
   return {
     username: user.username,
     isPublicProfile: user.isPublicProfile,
     image: user.image,
     coverImage: user.coverImage,
+    bio: user.bio,
   };
 }
 
@@ -46,6 +50,8 @@ export async function updateUserSettings(
   }
   const username = parsed.data;
   const isPublicProfile = formData.get("isPublicProfile") === "on";
+  const rawBio = formData.get("bio");
+  const bio = typeof rawBio === "string" && rawBio.trim().length > 0 ? rawBio.trim().slice(0, 160) : null;
 
   const existing = await prisma.user.findUnique({ where: { username } });
   if (existing && existing.id !== userId) {
@@ -54,7 +60,7 @@ export async function updateUserSettings(
 
   await prisma.user.update({
     where: { id: userId },
-    data: { username, isPublicProfile },
+    data: { username, isPublicProfile, bio },
   });
 
   revalidatePath("/journal/settings");
@@ -148,22 +154,32 @@ export async function searchPublicUsers(query: string): Promise<PublicUserResult
 
 export interface PublicProfile {
   username: string;
+  name: string | null;
+  image: string | null;
+  coverImage: string | null;
+  bio: string | null;
   trades: PlainTradeListItem[];
   totalCount: number;
   page: number;
   totalPages: number;
+  stats: { winRate: number | null; profitFactor: number | null; publicTradeCount: number };
+  followerCount: number;
+  followingCount: number;
+  isOwnProfile: boolean;
+  viewerIsLoggedIn: boolean;
+  viewerFollows: boolean;
 }
 
 export async function getPublicProfile(rawUsername: string, page = 1): Promise<PublicProfile | null> {
   const username = rawUsername.trim().toLowerCase();
   const user = await prisma.user.findUnique({
     where: { username },
-    select: { id: true, username: true, isPublicProfile: true },
+    select: { id: true, username: true, isPublicProfile: true, name: true, image: true, coverImage: true, bio: true },
   });
   if (!user || !user.isPublicProfile || !user.username) return null;
 
   const where = { userId: user.id, isPrivate: false };
-  const [trades, totalCount] = await Promise.all([
+  const [trades, totalCount, statsSource, followerCount, followingCount, session] = await Promise.all([
     prisma.trade.findMany({
       where,
       orderBy: { entryAt: "desc" },
@@ -176,6 +192,16 @@ export async function getPublicProfile(rawUsername: string, page = 1): Promise<P
       take: PUBLIC_TRADES_PER_PAGE,
     }),
     prisma.trade.count({ where }),
+    // Full (unpaginated) field set for stats — computeAnalytics needs every
+    // public trade, not just the current page, to get win rate/profit
+    // factor right.
+    prisma.trade.findMany({
+      where,
+      select: { id: true, symbol: true, direction: true, entryAt: true, exitAt: true, netPnl: true, realizedR: true, setupGrade: true },
+    }),
+    prisma.follow.count({ where: { followingId: user.id } }),
+    prisma.follow.count({ where: { followerId: user.id } }),
+    auth(),
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cascades from no generated Prisma client in this sandbox
@@ -185,13 +211,59 @@ export async function getPublicProfile(rawUsername: string, page = 1): Promise<P
     return toPlainTrade({ ...t, tags: flatTags }) as PlainTradeListItem;
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cascades from no generated Prisma client in this sandbox
+  const analytics = computeAnalytics(statsSource.map((t: any) => ({ ...t, netPnl: t.netPnl === null ? null : Number(t.netPnl) })));
+
+  const viewerId = session?.user?.id;
+  const isOwnProfile = viewerId === user.id;
+  const viewerFollows =
+    !isOwnProfile && viewerId
+      ? (await prisma.follow.count({ where: { followerId: viewerId, followingId: user.id } })) > 0
+      : false;
+
   return {
     username: user.username,
+    name: user.name,
+    image: user.image,
+    coverImage: user.coverImage,
+    bio: user.bio,
     trades: plain,
     totalCount,
     page,
     totalPages: Math.max(1, Math.ceil(totalCount / PUBLIC_TRADES_PER_PAGE)),
+    stats: {
+      winRate: analytics.winRate,
+      profitFactor: analytics.profitFactor,
+      publicTradeCount: totalCount,
+    },
+    followerCount,
+    followingCount,
+    isOwnProfile,
+    viewerIsLoggedIn: !!viewerId,
+    viewerFollows,
   };
+}
+
+export async function toggleFollow(targetUsername: string): Promise<{ following: boolean }> {
+  const viewerId = await requireUserId();
+  const username = targetUsername.trim().toLowerCase();
+
+  const target = await prisma.user.findUnique({ where: { username }, select: { id: true } });
+  if (!target) throw new Error("User not found");
+  if (target.id === viewerId) throw new Error("Can't follow yourself");
+
+  const existing = await prisma.follow.findUnique({
+    where: { followerId_followingId: { followerId: viewerId, followingId: target.id } },
+  });
+
+  if (existing) {
+    await prisma.follow.delete({ where: { id: existing.id } });
+  } else {
+    await prisma.follow.create({ data: { followerId: viewerId, followingId: target.id } });
+  }
+
+  revalidatePath(`/u/${username}`);
+  return { following: !existing };
 }
 
 export async function getPublicTrade(rawUsername: string, tradeId: string) {

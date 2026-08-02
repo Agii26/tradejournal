@@ -75,6 +75,18 @@ export function SettingsForm({
           />
         </FormField>
 
+        <FormField label="Bio" htmlFor="bio" hint="Shown on your public profile — optional, 160 characters max">
+          <textarea
+            id="bio"
+            name="bio"
+            rows={2}
+            maxLength={160}
+            defaultValue={initial.bio ?? ""}
+            placeholder="Discretionary crypto trader. Logging every setup, good and bad."
+            className={inputClass}
+          />
+        </FormField>
+
         <label className="flex cursor-pointer items-start gap-3 rounded-md border border-hairline px-4 py-3">
           <input
             type="checkbox"
