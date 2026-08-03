@@ -266,6 +266,101 @@ export async function toggleFollow(targetUsername: string): Promise<{ following:
   return { following: !existing };
 }
 
+const FOLLOW_LIST_PER_PAGE = 30;
+
+export interface FollowListEntry {
+  id: string;
+  username: string;
+  name: string | null;
+  image: string | null;
+  viewerFollows: boolean;
+  isViewer: boolean;
+}
+
+export interface FollowListResult {
+  profileUsername: string;
+  kind: "followers" | "following";
+  entries: FollowListEntry[];
+  totalCount: number;
+  page: number;
+  totalPages: number;
+  viewerIsLoggedIn: boolean;
+}
+
+export async function getFollowList(
+  rawUsername: string,
+  kind: "followers" | "following",
+  page = 1
+): Promise<FollowListResult | null> {
+  const username = rawUsername.trim().toLowerCase();
+  const user = await prisma.user.findUnique({
+    where: { username },
+    select: { id: true, username: true, isPublicProfile: true },
+  });
+  if (!user || !user.isPublicProfile || !user.username) return null;
+
+  const skip = (page - 1) * FOLLOW_LIST_PER_PAGE;
+  const personSelect = { id: true, username: true, name: true, image: true };
+
+  const [rows, totalCount, session] =
+    kind === "followers"
+      ? await Promise.all([
+          prisma.follow.findMany({
+            where: { followingId: user.id },
+            include: { follower: { select: personSelect } },
+            orderBy: { createdAt: "desc" },
+            skip,
+            take: FOLLOW_LIST_PER_PAGE,
+          }),
+          prisma.follow.count({ where: { followingId: user.id } }),
+          auth(),
+        ])
+      : await Promise.all([
+          prisma.follow.findMany({
+            where: { followerId: user.id },
+            include: { following: { select: personSelect } },
+            orderBy: { createdAt: "desc" },
+            skip,
+            take: FOLLOW_LIST_PER_PAGE,
+          }),
+          prisma.follow.count({ where: { followerId: user.id } }),
+          auth(),
+        ]);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cascades from no generated Prisma client in this sandbox
+  const people = (rows as any[])
+    .map((r) => (kind === "followers" ? r.follower : r.following))
+    .filter((p): p is { id: string; username: string | null; name: string | null; image: string | null } => !!p?.username);
+
+  const viewerId = session?.user?.id;
+  let viewerFollowsSet = new Set<string>();
+  if (viewerId && people.length > 0) {
+    const viewerFollowRows = await prisma.follow.findMany({
+      where: { followerId: viewerId, followingId: { in: people.map((p) => p.id) } },
+      select: { followingId: true },
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- cascades from no generated Prisma client in this sandbox
+    viewerFollowsSet = new Set((viewerFollowRows as any[]).map((r) => r.followingId));
+  }
+
+  return {
+    profileUsername: user.username,
+    kind,
+    entries: people.map((p) => ({
+      id: p.id,
+      username: p.username as string,
+      name: p.name,
+      image: p.image,
+      viewerFollows: viewerFollowsSet.has(p.id),
+      isViewer: p.id === viewerId,
+    })),
+    totalCount,
+    page,
+    totalPages: Math.max(1, Math.ceil(totalCount / FOLLOW_LIST_PER_PAGE)),
+    viewerIsLoggedIn: !!viewerId,
+  };
+}
+
 export async function getPublicTrade(rawUsername: string, tradeId: string) {
   const username = rawUsername.trim().toLowerCase();
   const user = await prisma.user.findUnique({

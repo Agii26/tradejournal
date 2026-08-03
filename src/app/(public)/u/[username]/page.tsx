@@ -79,14 +79,14 @@ export default async function PublicProfilePage({
           )}
 
           <div className="mt-3 flex gap-4 text-sm">
-            <span>
+            <Link href={`/u/${profile.username}/following`} className="hover:underline">
               <span className="font-medium text-ink">{profile.followingCount}</span>{" "}
               <span className="text-muted">Following</span>
-            </span>
-            <span>
+            </Link>
+            <Link href={`/u/${profile.username}/followers`} className="hover:underline">
               <span className="font-medium text-ink">{profile.followerCount}</span>{" "}
               <span className="text-muted">Followers</span>
-            </span>
+            </Link>
           </div>
 
           <div className="mt-5 flex gap-8 border-t border-hairline pt-4">
